@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server'; import {processJobs} from '../../../lib/worker'; import {timingSafeText} from '../../../lib/security';
+export async function POST(req:Request){const expected=process.env.CRON_SECRET||''; const got=(req.headers.get('authorization')||'').replace(/^Bearer\s+/i,''); if(!expected||!timingSafeText(expected,got))return NextResponse.json({error:'Unauthorized'},{status:401}); return NextResponse.json(await processJobs(20));}

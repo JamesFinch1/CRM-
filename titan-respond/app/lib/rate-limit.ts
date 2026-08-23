@@ -1,0 +1,3 @@
+import {q} from './db';
+export async function allowRate(key:string,limit:number,windowSeconds:number){const bucketMs=Math.floor(Date.now()/(windowSeconds*1000))*(windowSeconds*1000);const bucket=new Date(bucketMs).toISOString();const r=await q<any>(`INSERT INTO rate_limit_events(key,bucket,count) VALUES($1,$2,1) ON CONFLICT(key,bucket) DO UPDATE SET count=rate_limit_events.count+1 RETURNING count`,[key,bucket]);return Number(r.rows[0].count)<=limit}
+export function clientIp(req:Request){return (req.headers.get('x-forwarded-for')||'').split(',')[0].trim()||req.headers.get('x-real-ip')||'unknown'}
