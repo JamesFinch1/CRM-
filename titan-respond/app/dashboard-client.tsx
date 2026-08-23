@@ -7,7 +7,43 @@ export default function Dashboard({user}:{user:User}){const [leads,setLeads]=use
  const load=async()=>{const r=await fetch('/api/leads',{cache:'no-store'}); if(r.status===401)return router.push('/login'); const d=await r.json(); if(!r.ok)throw new Error(d.error||'Unable to load leads'); setLeads(d)}; useEffect(()=>{load().catch(e=>setError(e.message))},[]);
  const stats=useMemo(()=>({total:leads.length,active:leads.filter(l=>['new','queued','calling','qualified'].includes(l.status)).length,booked:leads.filter(l=>l.status==='booked').length,won:leads.filter(l=>l.status==='won').reduce((a,l)=>a+(l.estimatedValue||0),0),pipeline:leads.filter(l=>!['lost','do_not_contact'].includes(l.status)).reduce((a,l)=>a+(l.estimatedValue||0),0)}),[leads]);
  async function json(url:string,opts:any={}){const r=await fetch(url,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}}); const d=await r.json().catch(()=>({})); if(!r.ok)throw new Error(d.error||'Request failed'); return d}
- async function addLead(e:any){e.preventDefault();setError('');setBusy('add');try{const f=new FormData(e.currentTarget); await json('/api/leads',{method:'POST',body:JSON.stringify(Object.fromEntries(f))}); e.currentTarget.reset(); await load()}catch(e:any){setError(e.message)}finally{setBusy('')}}
+async function addLead(e:any){
+
+  e.preventDefault();
+
+  setError('');
+
+  setBusy('add');
+
+  const form = e.currentTarget;
+
+  const f = new FormData(form);
+
+  try {
+
+    await json('/api/leads',{
+
+      method:'POST',
+
+      body:JSON.stringify(Object.fromEntries(f))
+
+    });
+
+    form.reset();
+
+    await load();
+
+  } catch(e:any) {
+
+    setError(e.message);
+
+  } finally {
+
+    setBusy('');
+
+  }
+
+}
  async function call(id:string){setError('');setBusy(id);try{await json(`/api/leads/${id}/call`,{method:'POST'});await load()}catch(e:any){setError(e.message)}finally{setBusy('')}}
  async function status(id:string,status:string){setError('');try{await json(`/api/leads/${id}/status`,{method:'POST',body:JSON.stringify({status})});await load()}catch(e:any){setError(e.message)}}
  async function logout(){await fetch('/api/auth/logout',{method:'POST'});router.push('/login');router.refresh()}
