@@ -3,7 +3,8 @@ import { getSessionUser } from "../../../../lib/auth";
 import { q } from "../../../../lib/db";
 import { audit } from "../../../../lib/audit";
 export async function POST(
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   const user = await getSessionUser();
 
@@ -11,7 +12,7 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id } = params;
   const body = await request.json();
   const note = String(body.note || "").trim();
 
