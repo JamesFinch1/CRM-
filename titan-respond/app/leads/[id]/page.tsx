@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "../../lib/auth";
 import { q } from "../../lib/db";
 import Link from "next/link";
-
+import NoteForm from "./note-form";
 type Lead = {
   id: string;
   name: string;
@@ -181,15 +181,19 @@ export default async function LeadDetailPage({
       </section>
 
       <section className="panel">
-        <div className="panelHead">
-          <div>
-            <span className="eyebrow">NOTES</span>
-            <h2>Lead notes</h2>
-          </div>
-        </div>
+  <div className="panelHead">
+    <div>
+      <span className="eyebrow">NOTES</span>
+      <h2>Lead notes</h2>
+    </div>
+  </div>
 
-        <p>{lead.notes || "No notes recorded yet."}</p>
-      </section>
+  <NoteForm leadId={lead.id} />
+
+  <div style={{ marginTop: "24px", whiteSpace: "pre-wrap" }}>
+    <p>{lead.notes || "No notes recorded yet."}</p>
+  </div>
+</section>
 
       <section className="panel">
         <div className="panelHead">
