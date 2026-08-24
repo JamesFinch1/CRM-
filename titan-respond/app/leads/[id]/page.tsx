@@ -3,6 +3,7 @@ import { getSessionUser } from "../../lib/auth";
 import { q } from "../../lib/db";
 import Link from "next/link";
 import NoteForm from "./note-form";
+import StatusControl from "./status-control";
 type Lead = {
   id: string;
   name: string;
@@ -167,9 +168,12 @@ const activities = activityResult.rows;
           </article>
 
           <article>
-            <h4>Status</h4>
-            <p>{lead.status.replaceAll("_", " ")}</p>
-          </article>
+  <h4>Status</h4>
+  <StatusControl
+    leadId={lead.id}
+    currentStatus={lead.status}
+  />
+</article>
 
           <article>
             <h4>Contact basis</h4>
