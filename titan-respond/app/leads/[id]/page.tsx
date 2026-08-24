@@ -4,6 +4,7 @@ import { q } from "../../lib/db";
 import Link from "next/link";
 import NoteForm from "./note-form";
 import StatusControl from "./status-control";
+import CallButton from "./call-button";
 type Lead = {
   id: string;
   name: string;
@@ -139,9 +140,10 @@ const activities = activityResult.rows;
 
         <div className="features">
           <article>
-            <h4>Phone</h4>
-            <p>{lead.phone}</p>
-          </article>
+  <h4>Phone</h4>
+  <p>{lead.phone}</p>
+  <CallButton leadId={lead.id} />
+</article>
 
           <article>
             <h4>Email</h4>
