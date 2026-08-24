@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "../../../../lib/auth";
 import { q } from "../../../../lib/db";
-
+import { audit } from "../../../../lib/audit";
 export async function POST(
-  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const user = await getSessionUser();
@@ -44,6 +43,15 @@ export async function POST(
     );
   }
 
+await audit(
+  user.organizationId,
+  user.id,
+  "lead.note_added",
+  "lead",
+  id,
+  { description: "Note added to lead" }
+);
+  
   return NextResponse.json({
     ok: true,
     notes: result.rows[0].notes
