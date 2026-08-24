@@ -19,6 +19,12 @@ type Lead = {
   appointment_at: string | null;
 };
 
+type Activity = {
+  id: string;
+  type: string;
+  description: string;
+  created_at: string;
+};
 export default async function LeadDetailPage({
   params,
 }: {
@@ -64,6 +70,25 @@ export default async function LeadDetailPage({
 
   const lead = result.rows[0];
 
+  const activityResult = await q<Activity>(
+  `
+    SELECT
+      id,
+      action AS type,
+      COALESCE(metadata->>'description', action) AS description,
+      created_at
+    FROM audit_log
+    WHERE organization_id = $1
+      AND entity_type = 'lead'
+      AND entity_id = $2
+    ORDER BY created_at DESC
+    LIMIT 50
+  `,
+  [user.organizationId, id]
+);
+
+const activities = activityResult.rows;
+  
   if (!lead) {
     return (
       <main>
@@ -203,10 +228,21 @@ export default async function LeadDetailPage({
           </div>
         </div>
 
-        <p className="hint">
-          Calls, status changes and booking activity will appear here in the
-          next step.
-        </p>
+        {activities.length === 0 ? (
+  <p className="hint">No activity recorded yet.</p>
+) : (
+  <div className="features">
+    {activities.map((activity) => (
+      <article key={activity.id}>
+        <h4>{activity.type.replaceAll("_", " ")}</h4>
+        <p>{activity.description}</p>
+        <small>
+          {new Date(activity.created_at).toLocaleString("en-GB")}
+        </small>
+      </article>
+    ))}
+  </div>
+)}
       </section>
     </main>
   );
