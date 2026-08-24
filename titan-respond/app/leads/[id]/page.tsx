@@ -238,15 +238,32 @@ const activities = activityResult.rows;
   <p className="hint">No activity recorded yet.</p>
 ) : (
   <div className="features">
-    {activities.map((activity) => (
-      <article key={activity.id}>
-        <h4>{activity.type.replaceAll("_", " ")}</h4>
-        <p>{activity.description}</p>
-        <small>
-          {new Date(activity.created_at).toLocaleString("en-GB")}
-        </small>
-      </article>
-    ))}
+        {activities.map((activity) => {
+      const activityLabels: Record<string, string> = {
+        "lead.create": "Lead created",
+        "lead.status": "Status changed",
+        "lead.note_added": "Note added",
+        "lead.call_queued": "Call queued",
+      };
+
+      const label =
+        activityLabels[activity.type] ||
+        activity.type.replaceAll("_", " ").replaceAll(".", " ");
+
+      return (
+        <article key={activity.id}>
+          <h4>{label}</h4>
+          <p>
+            {activity.description === activity.type
+              ? label
+              : activity.description}
+          </p>
+          <small>
+            {new Date(activity.created_at).toLocaleString("en-GB")}
+          </small>
+        </article>
+      );
+    })}
   </div>
 )}
       </section>
